@@ -19,23 +19,23 @@ class Kriging{
 
 	Kriging(Function* ebbFunction, ARSsolver* auxSolver, int sampleBudget, int randomSeed = 0, bool printInfo = false);
 	
-	~Kriging();
+	virtual ~Kriging();
 
 	// Main method which queries the single source function and then trains the Kriging model.
 	void createSurrogateModel();
 
 	// Method which uses the sample generator to query the source function, using a Latin Hypercube Sampling plan
-	void generateSample();
+	virtual void generateSample();
 
 	// Main method which trains the Kriging model. Undergoes an auxiliary optimisation to find the best hyperparameters,
 	// then stores some useful values (i.e. mu and sigma) and matrices.
-	void trainModel();
+	virtual void trainModel();
 
 	// Method which uses ARS to find the best hyperparameter values by maximising the concentrated likelihood function.
-	void trainHyperparameters();
+	virtual void trainHyperparameters();
 
 	// Method which saves mu, sigma and two useful matrices for further calculations once the optimal hyperparameters have been found.
-	void saveMuSigma();
+	virtual void saveMuSigma();
 
 	// Calculates mu, sigma, R and a decomposition of R using the storeds hyperparameters. Used when calculating 
 	// the concentrated likelihood function, as well as when saving these values after the hyperparameters have been found.
@@ -47,8 +47,11 @@ class Kriging{
 	// Returns the surrogate surface variance, or uncertainty, at a point
 	double uncertainty(VectorXd &x);
 
+	// Returns the surrogate surface value at multiple points
+	vector<double> multipleSurfaceValues(vector<VectorXd> &points);
+
 	// Calculates the surrogate surface value and variance at a particular point
-	tuple<double, double> meanVarianceCalculator(VectorXd &x);
+	virtual tuple<double, double> meanVarianceCalculator(VectorXd &x);
 
 	// Calculates the concentrated likelihood function using the stored hyperparameters
 	double concentratedLikelihoodFunction();
@@ -113,7 +116,7 @@ class CoKriging: public Kriging{
 
 	CoKriging(BiFidelityFunction* biFunction, ARSsolver* auxSolver, int highFiSampleBudget, int lowFiSampleBudget, int randomSeed = 0, bool printInfo = false);
 
-	~CoKriging();
+	~CoKriging() override;
 
 	// Method which uses the sample generator to query the source function. First puts down a Latin Hypercube Sampling plan,
 	// followed by choosing a subset which is locally maximal in terms of the Morris-Mitchell criterion.
@@ -122,7 +125,7 @@ class CoKriging: public Kriging{
 	// Main method which trains the CoKriging model. First trains a Kriging model on the low fidelity data,
 	// then undergoes an auxiliary optimisation to find the best hyperparameters of the difference model including rho.
 	// Finally it stores some useful values (i.e. mu and sigma) and matrices.
-	void trainModel();
+	void trainModel() override;
 
 	// Method which finds the optimal hyperparameters for the difference model (i.e. theta_b's and p_b's) as well as rho
 	// using the ARS by maximising the intermediate concentrated likelihood function.
@@ -141,10 +144,10 @@ class CoKriging: public Kriging{
 	tuple<double, MatrixXd, LDLT<MatrixXd>> combinedMuCmatrixCalculator();
 
 	// Calculates the surrogate surface value and variance at a particular point
-	tuple<double, double> CoKriging::meanVarianceCalculator(VectorXd &x) override;
+	tuple<double, double> meanVarianceCalculator(VectorXd &x) override;
 
 	// Calculates the log likelihood function of the intermediate (i.e. error) model using the stored hyperparameters.
-	void intermediateConcentratedLikelihoodFunction();
+	double intermediateConcentratedLikelihoodFunction();
 	
 	// Function defined to be used for the auxiliary optimisation problem of optimising the hyperparameters of the intermediate (i.e. difference).
 	// A point passed to the evaluate function is a set of hyperparameters. This point is evaluated by storing 
@@ -164,6 +167,7 @@ class CoKriging: public Kriging{
 	BiFidelityFunction* biFunction_;		// Two-source black box function for which a surrogate model is built.
 	int highFiSampleBudget_;				// Number of samples of the high fidelity source used when training the model.
 	int lowFiSampleBudget_;					// Number of samples of the low fidelity source used when training the model.
+	Kriging* lowFiKriging_;					// Kriging model trained on the low fidelity data. 
 	vector<double> thetaB_;					// Intermediate set of first hyperparameters.
 	vector<double> pBVector_;				// Intermediate set of second hyperparameters.
 	double rho_;							// Multiplier of low fidelity model, also a hyperparameter.

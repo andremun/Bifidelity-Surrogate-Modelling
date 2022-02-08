@@ -305,28 +305,28 @@ double executeExperiment(string filename, string functionName, string technique,
 	// First create function
 	BiFidelityFunction* function = processFunctionName(functionName);
 	// Process surrogate model, call it Kriging as it is a parent class of CoKriging
-	AuxSolver* auxSolver = new ARSsolver(function, 10, auxSolverIterations, true, seed, printSolverInfo);
+	ARSsolver* auxSolver = new ARSsolver(function, 10, auxSolverIterations, true, seed, printSolverInfo);
 	Kriging* surrogateModel;
 	if(technique.compare("kriging") == 0){
 		surrogateModel = new Kriging(function, auxSolver, highFiBudget, seed, printAllInfo);
 	
 	}else if(technique.compare("cokriging") == 0){
-		surrogateModel = CoKriging(biFunction, auxSolver, highFiBudget, lowFiBudget, seed, printAllInfo);
+		surrogateModel = new CoKriging(function, auxSolver, highFiBudget, lowFiBudget, seed, printAllInfo);
 
-	else{
+	}else{
 		printf("Unkown technique %s! Ending here...\n", technique.c_str()); return -DBL_MAX;
 	}
 
 	// Train model and calculate accuracy
-	surrogateModel.trainModel();
+	surrogateModel->createSurrogateModel();
 	double performance;
-	if(!solver->trainedModel_){performance = -DBL_MAX;}
+	if(!surrogateModel->trainedModel_){performance = -DBL_MAX;}
 	else{
 		SampleGenerator* sampleGenerator = new SampleGenerator(function, seed, false);
 		vector<VectorXd> samples = sampleGenerator->randomLHS(testSampleSize * function->d_);
 		delete sampleGenerator;
 		vector<double> trueVals = function->evaluateMany(samples);
-		vector<double> modelVals = solver->multipleSurfaceValues(samples);
+		vector<double> modelVals = surrogateModel->multipleSurfaceValues(samples);
 		performance = relativeRootMeanSquaredError(trueVals, modelVals);
 	}
 
@@ -365,7 +365,7 @@ double executeExperiment(string filename, string functionName, string technique,
 	outputFile.close();
 
 	delete auxSolver;
-	delete solver;
+	delete surrogateModel;
 	delete function;
 
 	return performance;

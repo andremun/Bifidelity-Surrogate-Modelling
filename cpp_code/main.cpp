@@ -33,8 +33,11 @@ int main(int argc, char *argv[]){
 					if(!outputFile.is_open()){printf("Error: Could not open output file %s to output experiment results! Stopping now...\n", outputFilename.c_str()); return 0;}
 					outputFile << "instance technique highFiBudget lowFiBudget seed dimension CC RRMSE";
 					for(int i = 0; i < (int)pVals.size(); i++){
-						if(pVals[i] == 0.975){outputFile << " LCC_" << to_string(pVals[i]).substr(0,5);}
-						else{outputFile << " LCC_" << to_string(pVals[i]).substr(0,4);}
+						// Check decimal places
+						if(abs(pVals[i] * 10 - (int)(pVals[i]*10)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,3);}
+						else if(abs(pVals[i] * 100 - (int)(pVals[i]*100)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,4);}
+						else if(abs(pVals[i] * 1000 - (int)(pVals[i]*1000)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,5);}
+						else{outputFile << " LCC_" << to_string(pVals[i]).substr(0,6);}
 					}
 					outputFile << " performance\n";
 					outputFile.close();
@@ -75,8 +78,10 @@ int main(int argc, char *argv[]){
 		if(!outputFile.is_open()){printf("Error: Could not open output file %s to output experiment results! Stopping now...\n", outputFilename.c_str()); return 0;}
 		outputFile << "instance technique highFiBudget lowFiBudget seed dimension CC RRMSE";
 		for(int i = 0; i < (int)pVals.size(); i++){
-			if(pVals[i] == 0.975){outputFile << " LCC_" << to_string(pVals[i]).substr(0,5);}
-			else{outputFile << " LCC_" << to_string(pVals[i]).substr(0,4);}
+			if(abs(pVals[i] * 10 - (int)(pVals[i]*10)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,3);}
+			else if(abs(pVals[i] * 100 - (int)(pVals[i]*100)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,4);}
+			else if(abs(pVals[i] * 1000 - (int)(pVals[i]*1000)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,5);}
+			else{outputFile << " LCC_" << to_string(pVals[i]).substr(0,6);}
 		}
 		outputFile << " performance\n";
 		outputFile.close();
@@ -86,7 +91,7 @@ int main(int argc, char *argv[]){
 
 	
 	}else{
-		print("NEED SOME ERROR HERE");
+		printf("NEED SOME ERROR HERE");
 	}
 
 	return 0;

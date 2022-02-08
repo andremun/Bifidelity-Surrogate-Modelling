@@ -157,8 +157,7 @@ double ToalHartmannH3Function::evaluateLow(VectorXd &point){
 
 ToalTridFunction::ToalTridFunction(double a):
 	BiFidelityFunction(10, vector<double> {-100, -100, -100, -100, -100, -100, -100, -100, -100, -100}, 
-							vector<double> {100, 100, 100, 100, 100, 100, 100, 100, 100, 100}, 
-							costRatio),
+							vector<double> {100, 100, 100, 100, 100, 100, 100, 100, 100, 100}),
 	a_(a){}
 ToalTridFunction::~ToalTridFunction(){}
 double ToalTridFunction::evaluate(VectorXd &point){
@@ -185,8 +184,7 @@ double ToalTridFunction::evaluateLow(VectorXd &point){
 
 SongToalForretalFunction::SongToalForretalFunction(double a):
 	BiFidelityFunction(1, vector<double> {0}, 
-							vector<double> {1}, 
-							costRatio),
+							vector<double> {1}),
 	a_(a){}
 SongToalForretalFunction::~SongToalForretalFunction(){}
 double SongToalForretalFunction::evaluate(VectorXd &point){
@@ -1634,32 +1632,6 @@ double COCOBiFunction::f24(VectorXd &point){
 }
 
 
-double COCOBiFunction::f2Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f3Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f4Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f5Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f6Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f7Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f8Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f9Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f10Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f11Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f12Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f13Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f14Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f15Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f16Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f17Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f18Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f19Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f20Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f21Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f22Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f23Low(VectorXd &point){return 0.0;}
-double COCOBiFunction::f24Low(VectorXd &point){return 0.0;}
-
-
-
 
 double COCOBiFunction::evaluate(VectorXd &point){
 	if(function_ == 1){return f1(point);}
@@ -2060,10 +2032,6 @@ void COCOBiFunction::setDisplacement(double minRad, double maxRad){
 	
 }
 
-string COCOBiFunction::getFunctionName(){
-	string name = functionName_ + "-costRatio" + to_string(costRatio_) + "-budget" + to_string(budget_);
-	return name;
-}
 
 
 

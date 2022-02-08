@@ -26,7 +26,7 @@ ARSsolver::ARSsolver(Function* function, bool min, int randomSeed, bool printInf
 }
 
 ARSsolver::ARSsolver(Function* function, int numSearch, int maxIter, bool min, int randomSeed, bool printInfo):
-	AuxSolver(function, min, randomSeed, printInfo){
+	ARSsolver(function, min, randomSeed, printInfo){
 		numSearch_ = numSearch;
 		maxIter_ = maxIter;
 	}
@@ -49,7 +49,7 @@ void ARSsolver::reseedRandom(int newSeed){
 	sampleGenerator_ = new SampleGenerator(function_, randomSeed_);
 }
 
-void ARSsolver::ARSsolver(Function* function, bool min){
+void ARSsolver::updateProblem(Function* function, bool min){
 	function_ = function;
 	min_ = min;
 	if(min){multiplier_ = 1;}

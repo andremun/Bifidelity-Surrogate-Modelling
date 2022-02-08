@@ -86,12 +86,12 @@ vector<double> calculateFunctionFeatures(BiFidelityFunction* function, int sampl
 	// Define all weights as 1 to get normal correlation coefficient
 	vector<double> weightsNormal(size, 1);
 	double correlationCoefficient = weightedCorrelationCoefficient(highSample, lowSample, weightsNormal);
-	double relativeError = rootMeanSquaredError(highSample, lowSample);
+	double relativeError = relativeRootMeanSquaredError(highSample, lowSample);
 	// Calculate LCC values
 	vector<double> localCorrelations = calculateLocalCorrelations(function, sampleSizeMult, seed, r, pVals);
 	// Store features
 	vector<double> results(2 + (int)pVals.size(), 0.0);
-	results[0] = globalCorrelation;
+	results[0] = correlationCoefficient;
 	results[1] = relativeError;
 	for(int i = 0; i < (int)pVals.size(); i++){
 		results[2 + i] = localCorrelations[i];
@@ -134,7 +134,7 @@ vector<double> calculateLocalCorrelations(BiFidelityFunction* function, int samp
 			weights.push_back(1.0 - localDist / maxDist);
 		}
 		// Calculate local correlation
-		double corr = weightedCorrelation(localLowSample, localHighSample, weights);
+		double corr = weightedCorrelationCoefficient(localLowSample, localHighSample, weights);
 		// Add to count if larger than or equal to cut off
 		for(int j = 0; j < (int)pVals.size(); j++){
 			if(corr >= pVals[j]){localCorrs[j]++;}

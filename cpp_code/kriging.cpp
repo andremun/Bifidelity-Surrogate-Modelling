@@ -45,7 +45,7 @@ void Kriging::generateSample(){
 		printf("Generate initial data sample: ");
 		sampleGenerator_->prePrint_ = "Generate data sample: ";
 	}
-	sampledPoints_ = sampleGenerator_->randomLHS(initialSampleSize);
+	sampledPoints_ = sampleGenerator_->randomLHS(sampleBudget_);
 	sampledPointsValues_ = ebbFunction_->evaluateMany(sampledPoints_);
 	if(printInfo_){printf("\n");}
 	return;
@@ -146,7 +146,7 @@ double Kriging::uncertainty(VectorXd &x){
 	return var;
 }
 
-double Kriging::multipleSurfaceValues(vector<VectorXd> &points){
+vector<double> Kriging::multipleSurfaceValues(vector<VectorXd> &points){
 	vector<double> values((int)points.size(), 0.0);
 	for(int i = 0; i < (int)points.size(); i++){
 		values[i] = surfaceValue(points[i]);
@@ -225,7 +225,7 @@ double Kriging::ConcentratedLikelihoodFunction::evaluate(VectorXd &point){
 
 
 CoKriging::CoKriging(BiFidelityFunction* biFunction, ARSsolver* auxSolver, int highFiSampleBudget, int lowFiSampleBudget, int randomSeed, bool printInfo):
-	Kriging(ebbFunction, auxSolver, 0, randomSeed, printInfo), 
+	Kriging(biFunction, auxSolver, 0, randomSeed, printInfo), 
 	biFunction_(biFunction),
 	highFiSampleBudget_(highFiSampleBudget),
 	lowFiSampleBudget_(lowFiSampleBudget){
@@ -236,6 +236,8 @@ CoKriging::CoKriging(BiFidelityFunction* biFunction, ARSsolver* auxSolver, int h
 	pBVector_.reserve(ebbFunction_->d_);
 
 }
+
+CoKriging::~CoKriging(){}
 
 void CoKriging::generateSample(){
 
@@ -313,7 +315,6 @@ void CoKriging::saveMuSigma(){
 tuple<double, double, MatrixXd, LDLT<MatrixXd>> CoKriging::intermediateMuSigmaCalculator(){	
 	int n = (int)sampledPoints_.size();
 	int d = (int)sampledPoints_[0].size();
-
 	if(n < 1){
 		printf("Trying to train CoKriging model with less points than needed! Have %d but need %d. Exiting now...\n", n, 1);
 		exit(0);
@@ -339,7 +340,6 @@ tuple<double, double, MatrixXd, LDLT<MatrixXd>> CoKriging::intermediateMuSigmaCa
 		one(i) = 1;
 		b(i) = sampledPointsValues_[i] - rho_ * lowFiKriging_->surfaceValue(sampledPoints_[i]);
 	}
-
 	LDLT<MatrixXd> bExpensiveMatrixDecomposition = bExpensiveMatrix.ldlt();
 	MatrixXd mu_top = one.transpose() * bExpensiveMatrixDecomposition.solve(b);
 	MatrixXd mu_bottom = one.transpose() * bExpensiveMatrixDecomposition.solve(one);
