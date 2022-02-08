@@ -1,0 +1,3 @@
+Folder which contains files which specify experiment runs.
+Each line in a file specifies the the required information for an experimental run.
+The results of each line are stored in a single file in the folder cluserResults.
