@@ -90,10 +90,10 @@ vector<double> calculateFunctionFeatures(BiFidelityFunction* function, int sampl
 	// Calculate LCC values
 	vector<double> localCorrelations = calculateLocalCorrelations(function, sampleSizeMult, seed, r, pVals);
 	// Store features
-	vector<double> results(2 + (int)pVals.size(), 0.0);
+	vector<double> results(2 + (int)localCorrelations.size(), 0.0);
 	results[0] = correlationCoefficient;
 	results[1] = relativeError;
-	for(int i = 0; i < (int)pVals.size(); i++){
+	for(int i = 0; i < (int)localCorrelations.size(); i++){
 		results[2 + i] = localCorrelations[i];
 	}
 	delete generator;
@@ -114,9 +114,8 @@ vector<double> calculateLocalCorrelations(BiFidelityFunction* function, int samp
 	vector<VectorXd> sample = generator->randomLHS(sampleSize);
 	vector<double> highSample = function->evaluateMany(sample);
 	vector<double> lowSample = function->evaluateManyLow(sample);
-	// Create storage of correlations
-	vector<double> localCorrs((int)pVals.size(), 0.0);
-	// Cycle through each sample and calculate local correlation
+	// Cycle through each sample and calculate and store local correlation
+	vector<double> localCorrValues(sampleSize, 0.0);
 	vector<double> weights;
 	vector<double> localHighSample;
 	vector<double> localLowSample;
@@ -134,17 +133,40 @@ vector<double> calculateLocalCorrelations(BiFidelityFunction* function, int samp
 			weights.push_back(1.0 - localDist / maxDist);
 		}
 		// Calculate local correlation
-		double corr = weightedCorrelationCoefficient(localLowSample, localHighSample, weights);
-		// Add to count if larger than or equal to cut off
-		for(int j = 0; j < (int)pVals.size(); j++){
-			if(corr >= pVals[j]){localCorrs[j]++;}
-		}
+		localCorrValues[i] = weightedCorrelationCoefficient(localLowSample, localHighSample, weights);
 		// Done! Clear vectors for next iteration
 		weights.clear();
 		localHighSample.clear();
 		localLowSample.clear();
 	}
+	// Now process values to get features
+	vector<double> localCorrs((int)pVals.size(), 0.0);
+	// First LCC^r_p values
+	// Add to count if larger than or equal to cut off
+	for(int i = 0; i < sampleSize; i++){
+		for(int j = 0; j < (int)pVals.size(); j++){
+			if(localCorrValues[i] >= pVals[j]){localCorrs[j]++;}
+		}
+	}
+	// Divide by total and done
 	for(int j = 0; j < (int)pVals.size(); j++){localCorrs[j] = localCorrs[j] / sampleSize;}
+
+	// Now calculate LCC^r_sd and LCC^r_coeff
+	double lccMean = 0;
+	for(int i = 0; i < sampleSize; i++){
+		lccMean += localCorrValues[i];
+	}
+	lccMean = lccMean / sampleSize;
+	double lccSD = 0;
+	for(int i = 0; i < sampleSize; i++){
+		lccSD += pow(localCorrValues[i] - lccMean, 2);
+	}
+	lccSD = sqrt(lccSD / (sampleSize - 1));
+	localCorrs.push_back(lccSD);
+	// Add LCC^r_coeff
+	double lccCoeff = pow(lccSD, 2);
+	if(lccMean > TOL){lccCoeff = lccCoeff / lccMean;}
+	localCorrs.push_back(lccCoeff);
 
 	return localCorrs;
 }

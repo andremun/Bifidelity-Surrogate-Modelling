@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 						else if(abs(pVals[i] * 1000 - (int)(pVals[i]*1000)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,5);}
 						else{outputFile << " LCC_" << to_string(pVals[i]).substr(0,6);}
 					}
-					outputFile << " performance\n";
+					outputFile << " LCC_sd LCC_coeff performance\n";
 					outputFile.close();
 				}
 				// Now have a line, should call processing of instructions
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
 			else if(abs(pVals[i] * 1000 - (int)(pVals[i]*1000)) < TOL){outputFile << " LCC_" << to_string(pVals[i]).substr(0,5);}
 			else{outputFile << " LCC_" << to_string(pVals[i]).substr(0,6);}
 		}
-		outputFile << " performance\n";
+		outputFile << " LCC_sd LCC_coeff performance\n";
 		outputFile.close();
 
 		// Now call function which processes instructions

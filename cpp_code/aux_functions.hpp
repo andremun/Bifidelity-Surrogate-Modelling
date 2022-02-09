@@ -24,7 +24,7 @@ double relativeRootMeanSquaredError(vector<double> &dataSet1, vector<double> &da
 // Andres-Thio N, Munoz MA, Smith-Miles K (2022): "Bi-fidelity Surrogate Modelling: Showcasing the need for new test instances"
 vector<double> calculateFunctionFeatures(BiFidelityFunction* function, int sampleSizeMult, int seed, double r = 0.2, vector<double> pVals = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.975});
 
-// For a bi-fidelity source, this function calculates LCC^r_p for given r and a set of p values.
+// For a bi-fidelity source, this function calculates LCC^r_p, LCC^r_sd and LCC^r_coeff for given r and a set of p values.
 // Does so by taking a sample of size sampleSizeMult * d, where d is the dimension of the bi-fidelity source, and calculating 
 // the weighted correlation at each of those points. For more information, consult
 // Andres-Thio N, Munoz MA, Smith-Miles K (2022): "Bi-fidelity Surrogate Modelling: Showcasing the need for new test instances"
