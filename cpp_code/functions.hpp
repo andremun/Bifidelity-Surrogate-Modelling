@@ -542,8 +542,13 @@ class ParkHartmannH6Function : public BiFidelityFunction {
 // COCO functions defined in 
 // Hansen N, Auger A, Ros R, Mersmann O, Tuˇsar T, Brockhoff D (2020) "COCO: A platform for comparing
 //	continuous optimizers in a black-box setting"
+//
+// For implementation details, consult the document
+// "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions"
+//
 // Low fidelity function creation is that preseneted in 
 // Andres-Thio N, Munoz MA, Smith-Miles K (2022): "Bi-fidelity Surrogate Modelling: Showcasing the need for new test instances"
+//
 class COCOBiFunction : public BiFidelityFunction {
 	public:
 
@@ -551,28 +556,44 @@ class COCOBiFunction : public BiFidelityFunction {
 
 	~COCOBiFunction();
 
+	// Initialises matrices and constants which will be used by some of the functions.
 	void initialiseConstants();
 
+	// COCO functions are intialised with randomly chosen optimum location and value.
+	// This function randomly chooses these values.
 	void chooseOptVals();
 
+	//  Random orthodonal (rotation) matrix creation.
+	// As stated in "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions":
+	// Orthogonal matrices are generated from standard normally distributed entries by Gram-Schmidt orthonormalization.
+	// Columns and rows of an orthogonal matrix form an orthonormal basis
 	MatrixXd randomRotationMatrix(int d);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	double fTosc(double val);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	void fTosc(VectorXd &point);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	void fTasy(VectorXd &point, double beta);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	void fTalpha(VectorXd &point, double alpha);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	MatrixXd matrixTalpha(double alpha);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	MatrixXd matrixC(int index);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	double fPen(VectorXd &point);
 
+	// Consult "Real-Parameter Black-Box Optimization Benchmarking 2010: Presentation of the Noiseless Functions".
 	int sign(double val);
 
+	// Implementation of the 24 function of the COCO test suite.
 	double f1(VectorXd &point);
 	double f2(VectorXd &point);
 	double f3(VectorXd &point);
@@ -598,92 +619,40 @@ class COCOBiFunction : public BiFidelityFunction {
 	double f23(VectorXd &point);
 	double f24(VectorXd &point);
 
+	// Function which calls the appropriate definition based on the stored function_ value.
 	virtual double evaluate(VectorXd &point) override;
 
+	// Implementes the addition of a disturbance.
 	virtual double evaluateLow(VectorXd &point) override;
 
-	double addGaussNoise(double amplitude, double seed);
-
-	double addUniformNoise(double value, double amplitude, double seed);
-
-	double addCauchyNoise(double amplitude, double prob, double seed);
-
-	double addGaussWhiteNoise(double amplitude, double seed);
-	
-	double addSimpleNoise(double value, double amplitude);
-
-	double addComplexNoise(double value, double amplitude);
-
-	void setDisplacement(double minRad, double maxRad);
+	// Basic disturbance used is a trigonometric function.
+	double addBasicDisturbance(double value);
 
 
-	int function_;
-	VectorXd xOpt_;
-	double fOpt_;
-	string functionName_;
-	int seed_;
-	mt19937 randGen_;
+	int function_;							// Function instanciated, between 1-24.
+	int seed_;								// Random seed used for reproducibility.
+	mt19937 randGen_;						// Generator of all random numbers of the class.
+	MatrixXd rotationQ_;					// Stored orthogonal rotation matrix used by some functions.
+	MatrixXd rotationR_;					// Another orthogonal rotation matrix for functions which use two.
+	MatrixXd leftMultiplication_;			// Multiplication of matrices, saved for speed when evaluating certain functions.
+	vector<double> alphas_;					// Vector used by some functions.
+	vector< vector<int> > matrixPerm_;		// Permutation matrix used by some functions.
+	vector<VectorXd> localOptima_;			// Set of local optima randomly generated, used by some functions.
 
-	MatrixXd rotationQ_;
-	MatrixXd rotationR_;
-	MatrixXd leftMultiplication_;
-	vector<double> alphas_;
-	vector<VectorXd> localOptima_;
-	vector< vector<int> > matrixPerm_;
+	VectorXd xOpt_;							// Randomly generated position of the optimum.
+	double fOpt_;							// Randomly generated optimum value, chosen to be between -100 and 100.
+	double fMax_;							// Maxium value of the function. Not initialised, this variable exists so that it can be saved.
+	double maxDist_;						// Maximum distance from any pair of points. Calculated as the distance between opposite endpoints of sample space hypercube.
 
+	char disturbanceType_;					// Type of Disturbance, can be height based (h) or source based (s).
+	int disturbanceNum_;					// Given disturbance type, the number (1 oe 2) specifies how it is applied.
 
-	// Values for modifications, starting again clean
-	int globalNoiseType_; // i.e. based on objective function, optimal, centres, etc...
-	int noiseType_; // i.e. sine wave, sine cosine wave, white noise, etc...
-	double noiseRadius_;
-	double noiseAmplitude_;
+	double disturbanceHeight_;				// Height at which the disturbance is centered, used for disturbance type h.
+	double disturbanceRadius_;				// Radius of disturbance, used for both disturbance types.
+	vector<VectorXd> disturbanceCentres_;	// Centres of the disturbances for disturbance type s.
 
-	// Values specific to modifications
-	// Objective function (i.e. vertical) noise
-	double noiseHeight_;
-	// Centres noise
-	vector<VectorXd> noiseCentres_;
-	// Sine and cosine noise
-	int noiseFreq_;
-	// Cauchy noise
-	// double noiseProb_;
-
-	VectorXd displacement_;
-
-
-	double fMax_;
-	double maxDist_;
-	double maxDistToOpt_;
-
-
-
-
-	// double m_;
-	// double r_;
-
-	// double disp_;
-	// double startR_;
-	// double endR_;
-	// double startN_;
-	// double endN_;
-	// double ampN_;
-	// int freqN_;
-
-	// // Values for localised noise
-	// int noiseType_;
-	// vector<VectorXd> focalPoints_;
-	// double localRadius_;
-	// double localAmp_;
-	// int localFreq_;
-
-	// VectorXd lowDisplacement_;
-	// double fMax_;
-
-	// bool addFunction_;
-
-	// double alpha_;
-	// double beta_;
-	// double p_;
+	int basicDisturbanceFrequency_;			// Frequency of basic disturbance, affects behaviour of trigonometric functions.
+	double basicDisturbanceAmplitude_;		// Amplitude of trigonometric functions in the basic disturbance.
 	
 };
 

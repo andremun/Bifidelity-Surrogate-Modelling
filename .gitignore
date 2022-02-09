@@ -3,6 +3,11 @@
 data/*
 !*info.txt
 
+# Also want to keep folder which lists available functions
+!data/availableFunctions/*
+
+# Ignore all .DS_Store files from Mac
+*.DS_Store
 
 
 

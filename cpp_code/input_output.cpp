@@ -203,64 +203,36 @@ COCOBiFunction* processCOCOFunctionName(string name){
 	int seed = stoi(line.substr(4));
 	// By this point, can initialsie the function
 	COCOBiFunction* function = new COCOBiFunction(func, dim, seed);
-	// printf("Got COCO function %d with dim %d and seed %d", func, dim, seed);
-	// Get global noise
+	// Get disturbance type
 	getline(ss, line, '-');
-	int globalNoise = stoi(line.substr(11));
-	if(globalNoise == 4 || globalNoise == 5){
+	function->disturbanceType_ = line[4];
+	function->disturbanceNum_ = stoi(line.substr(5,1));
+	if(function->disturbanceType_ == 'h'){
 		// Get height
 		getline(ss, line, '-');
-		double height = stof(line.substr(6));
+		function->disturbanceHeight_ = stof(line.substr(6));
 		// Get radius
 		getline(ss, line, '-');
-		double radius = stof(line.substr(6));
-		// Save values in function
-		function->globalNoiseType_ = globalNoise;
-		function->noiseHeight_ = height;
-		function->noiseRadius_ = radius;
+		function->disturbanceRadius_ = stof(line.substr(6));
 
-	}else if(globalNoise == 10 || globalNoise == 11){
-		// Get centres
+	}else if(function->disturbanceType_ == 's'){
+		// Get number of sources and initialise points
 		getline(ss, line, '-');
 		int centres = stoi(line.substr(7));
-		// Get radius
-		getline(ss, line, '-');
-		double radius = stof(line.substr(6));
-		// Save values in function
-		function->globalNoiseType_ = globalNoise;
 		SampleGenerator* generator = new SampleGenerator(function, seed, false);
-		function->noiseCentres_ = generator->randomLHS(centres);
-		function->noiseRadius_ = radius;
-		delete generator;
-		// printf(" - got global noise %d, with %d centres and radius %.2f", globalNoise, centres, radius);
-		// for(int i = 0; i < function->noiseCentres_.size(); i++){
-		// 	printf(" centre ");
-		// 	printPoint(function->noiseCentres_[i]);
-		// }				
+		function->disturbanceCentres_ = generator->randomLHS(centres);
+		delete generator;			
 	}else{
-		printf("Global noise %d not yet implemented, for now only have global noises 4, 5, 10 and 11!\n", globalNoise);
+		printf("Disturbance type %c not yet implemented, for now only have height (h) and source (s) based!\n", function->disturbanceType_);
 		return NULL;
 	}
-	// Get local noise
+	// Get basic disturbance parameters, frequency and amplitude
 	getline(ss, line, '-');
-	int noise = stoi(line.substr(5));
-	// If noise is type 1 or 2, will also need frequency
-	int freq = 0;
-	if(noise == 1 || noise == 2){
-		getline(ss, line, '-');
-		freq = stoi(line.substr(4));
-	}
-	// Get amplitude
-	getline(ss, line, '-');
-	double amp = stof(line.substr(3));
-	// Save info
-	function->noiseAmplitude_ = amp;
-	function->noiseType_ = noise;
-	function->noiseFreq_ = freq;
-	// printf(" - got local noise %d with amp %.2f\n", noise, amp);
+	function->basicDisturbanceFrequency_ = stoi(line.substr(4));
+	function->basicDisturbanceAmplitude_ = stof(line.substr(3));
 
-	// For this to work, need to know also the max of the function
-	// ARSsolver* auxSolver = new ARSsolver(function, 10, 5000 * sqrt(function->d_), false, seed, true);
+	// These disturbances need to know the range of the function.
+	// Minimum is chosen, need to find maximum. Approximation of range is still valid.
 	ARSsolver* auxSolver = new ARSsolver(function, 10, 5000, false, seed, false);
 	VectorXd best = auxSolver->optimise();
 	function->fMax_ = function->evaluate(best);

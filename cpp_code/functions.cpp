@@ -1037,11 +1037,6 @@ void COCOBiFunction::initialiseConstants(){
     }
     randGen_ = gen;
 
-    // Set displacement vector to the zero vector
-    VectorXd disp(d_);
-	for(int i = 0; i < d_; i++){disp(i) = 0;}
-	displacement_ = disp;
-
     // Calculate rotations, save matrix multiplications for certain functions
 	rotationQ_ = randomRotationMatrix(d_);
 	rotationR_ = randomRotationMatrix(d_);
@@ -1053,7 +1048,7 @@ void COCOBiFunction::initialiseConstants(){
 	if(function_ == 18){leftMultiplication_ = matrixTalpha(1000.0) * rotationQ_;}
 	if(function_ == 23 || function_ == 24){leftMultiplication_ = rotationQ_ * matrixTalpha(100.0) * rotationR_;}
 
-	// Initialise a random ordering of alphas
+	// Initialise a random ordering of alphas for relevant functions
 	if(function_ == 21 || function_ == 22){
 		int num;
 		if(function_ == 21){num = 101;}
@@ -1098,14 +1093,13 @@ void COCOBiFunction::initialiseConstants(){
    			matrixPerm_.push_back(order);
    		}
 	}
-	
 }
 
 void COCOBiFunction::chooseOptVals(){
 	uniform_real_distribution<double> randomDist(-4, 4);
 	VectorXd xOpt(d_);
+	// Generate location of optimum
 	for(int i = 0; i < d_; i++){
-
 		if(function_ == 5){
 			xOpt(i) = randomDist(randGen_);
 			if(xOpt(i) > 0){xOpt(i) = 5.0;}
@@ -1131,33 +1125,25 @@ void COCOBiFunction::chooseOptVals(){
 			xOpt(i) = randomDist(randGen_);
 		}
 	}
-	
 	if(function_ == 9 || function_ == 19){xOpt_ = rotationR_.inverse() * xOpt;}
 	else if(function_ == 21 || function_ == 22){xOpt_ = localOptima_[0];}
 	else{xOpt_ = xOpt;}
-	
-
+	// Generate optimum value
 	cauchy_distribution<double> randomDist2(0, 100);
 	fOpt_ = min(100.0, max(-100.0, randomDist2(randGen_)));
-
+	// Calculate maximum distance between any pair of points (distance from endpoints of sample space)
 	maxDist_ = 0.0;
-	maxDistToOpt_ = 0.0;
 	VectorXd furthestPoint(d_);
-	VectorXd furthestPointToOpt(d_);
 	for(int i = 0; i < d_; i++){
-		if(upperBound_[i] - xOpt_(i) > xOpt(i) - lowerBound_[i]){furthestPointToOpt(i) = upperBound_[i];}
-		else{furthestPointToOpt(i) = lowerBound_[i];}
 		furthestPoint(i) = upperBound_[i] - lowerBound_[i];
 	}
-	maxDistToOpt_ = (furthestPointToOpt - xOpt).norm();
 	maxDist_ = furthestPoint.norm();
 }
 
 
-MatrixXd COCOBiFunction::randomRotationMatrix(int d){
-	
-    normal_distribution<double> randomDist(0, 1);
 
+MatrixXd COCOBiFunction::randomRotationMatrix(int d){
+    normal_distribution<double> randomDist(0, 1);
     // Create matrix, fill it in with random numbers
     MatrixXd rotation(d,d);
     for(int i = 0; i < d; i++){
@@ -1187,8 +1173,38 @@ MatrixXd COCOBiFunction::randomRotationMatrix(int d){
     return rotation;
 }
 
+MatrixXd COCOBiFunction::matrixTalpha(double alpha){
+	MatrixXd alphaMatrix(d_, d_);
 
+	for(int i = 0; i < d_; i++){
+		for(int j = i + 1; j < d_; j++){
+			alphaMatrix(i,j) = 0;
+			alphaMatrix(j,i) = 0;
+		}
+		double power;
+		if(d_ == 1){power = 0.0;}
+		else{power = i / (2.0*(d_ - 1.0));}
+		alphaMatrix(i,i) = pow(alpha, power);
+	}
+	return alphaMatrix;
+}
 
+MatrixXd COCOBiFunction::matrixC(int index){
+	MatrixXd cMatrix(d_, d_);
+	double alpha = alphas_[index]; 
+
+	for(int i = 0; i < d_; i++){
+		for(int j = i + 1; j < d_; j++){
+			cMatrix(i,j) = 0;
+			cMatrix(j,i) = 0;
+		}
+		double power;
+		if(d_ == 1){power = 0;}
+		else{power = matrixPerm_[index][i] / (2.0*(d_ - 1.0));}
+		cMatrix(i,i) = pow(alpha, power) / pow(alpha, 0.25);
+	}
+	return cMatrix;
+}
 
 double COCOBiFunction::fTosc(double val){
 	double a = 0.1;
@@ -1227,40 +1243,6 @@ void COCOBiFunction::fTalpha(VectorXd &point, double alpha){
 		point(i) = point(i) * pow(alpha, power);
 	}
 }
-
-MatrixXd COCOBiFunction::matrixTalpha(double alpha){
-	MatrixXd alphaMatrix(d_, d_);
-
-	for(int i = 0; i < d_; i++){
-		for(int j = i + 1; j < d_; j++){
-			alphaMatrix(i,j) = 0;
-			alphaMatrix(j,i) = 0;
-		}
-		double power;
-		if(d_ == 1){power = 0.0;}
-		else{power = i / (2.0*(d_ - 1.0));}
-		alphaMatrix(i,i) = pow(alpha, power);
-	}
-	return alphaMatrix;
-}
-
-MatrixXd COCOBiFunction::matrixC(int index){
-	MatrixXd cMatrix(d_, d_);
-	double alpha = alphas_[index]; 
-
-	for(int i = 0; i < d_; i++){
-		for(int j = i + 1; j < d_; j++){
-			cMatrix(i,j) = 0;
-			cMatrix(j,i) = 0;
-		}
-		double power;
-		if(d_ == 1){power = 0;}
-		else{power = matrixPerm_[index][i] / (2.0*(d_ - 1.0));}
-		cMatrix(i,i) = pow(alpha, power) / pow(alpha, 0.25);
-	}
-	return cMatrix;
-}
-
 
 double COCOBiFunction::fPen(VectorXd &point){
 	double result = 0.0;
@@ -1658,14 +1640,13 @@ double COCOBiFunction::evaluate(VectorXd &point){
 	else if(function_ == 22){return f22(point);}
 	else if(function_ == 23){return f23(point);}
 	else if(function_ == 24){return f24(point);}
-	
 	return 0.0;
 }
 
-double COCOBiFunction::evaluateLow(VectorXd &point){
 
+
+double COCOBiFunction::evaluateLow(VectorXd &point){
 	// Check noise came out alright
-	point = point - displacement_;
 	double value = evaluate(point);
 	bool addNoise = false;
 	double dist = 0.0;
@@ -1675,362 +1656,70 @@ double COCOBiFunction::evaluateLow(VectorXd &point){
 	// and then add it if required
 	VectorXd minDist(d_);
 	for(int i = 0; i < d_; i++){minDist(i) = lowerBound_[i];}
-	double trav = (point - minDist).norm() / (upperBound_[0] - lowerBound_[0]);
-	// Work out noise type and whether noise needs to be added
-	if(globalNoiseType_ == 1){
-		// Global noise
-		addNoise = true;
-		mult = 1.0;
-	
-	}else if(globalNoiseType_ == 2){
-		// Closer to fOpt has less noise
-		addNoise = true;
-		mult = 1.0 - (fMax_ - value) / (fMax_ - fOpt_);
-		
-	}else if(globalNoiseType_ == 3){
-		// Closer to fMax has more noise
-		addNoise = true;
-		mult = 1.0 - (value - fOpt_) / (fMax_ - fOpt_);
-
-	}else if(globalNoiseType_ == 4){
+	double trav = (point - minDist).norm() / maxDist_;
+	// Calculate whether noise needs to be added, and its impact (mult value)
+	if(disturbanceType_ == 'h' && disturbanceNum_ == 1){
 		// Height based
-		double noiseCentre = fOpt_ + noiseHeight_ * (fMax_ - fOpt_);
-		double absRadius = noiseRadius_ * (fMax_ - fOpt_);
+		double noiseCentre = fOpt_ + disturbanceHeight_ * (fMax_ - fOpt_);
+		double absRadius = disturbanceRadius_ * (fMax_ - fOpt_);
+		dist = abs(value - noiseCentre);
+		if(dist < absRadius){
+			addNoise = true;
+			mult = 1.0 - dist / absRadius;
+		}
+
+	}else if(disturbanceType_ == 'h' && disturbanceNum_ == 2){
+		// Height based
+		double noiseCentre = fOpt_ + disturbanceHeight_ * (fMax_ - fOpt_);
+		double absRadius = disturbanceRadius_ * (fMax_ - fOpt_);
 		dist = abs(value - noiseCentre);
 		if(dist > absRadius){
 			addNoise = true;
 			mult = 1.0 - ((fMax_ - fOpt_) - dist) / ((fMax_ - fOpt_) - absRadius);
 		}
 
-	}else if(globalNoiseType_ == 5){
-		// Height based
-		double noiseCentre = fOpt_ + noiseHeight_ * (fMax_ - fOpt_);
-		double absRadius = noiseRadius_ * (fMax_ - fOpt_);
-		dist = abs(value - noiseCentre);
-		if(dist < absRadius){
-			addNoise = true;
-			mult = 1.0 - dist / absRadius;
+	}else if(disturbanceType_ == 's' && disturbanceNum_ == 1){
+		// Noise centres, work out closest point
+		dist = DBL_MAX;
+		for(int i = 0; i < (int)disturbanceCentres_.size(); i++){
+			if((disturbanceCentres_[i] - point).norm() < dist){dist = (disturbanceCentres_[i] - point).norm();}
 		}
-
-	}else if(globalNoiseType_ == 6){
-		// Closer to xOpt has less noise
-		addNoise = true;
-		dist = (point - xOpt_).norm();
-		mult = 1.0 - (maxDistToOpt_ - dist) / maxDistToOpt_;
-
-	}else if(globalNoiseType_ == 7){
-		// Closer to xOpt has more noise
-		addNoise = true;
-		dist = (point - xOpt_).norm();
-		mult = 1.0 - dist / maxDistToOpt_;
-
-	}else if(globalNoiseType_ == 8){
-		// Closer to xOpt has less noise, radius specified
-		dist = (point - xOpt_).norm();
-		double absRadius = noiseRadius_ * maxDist_;
+		double absRadius = disturbanceRadius_ * maxDist_;
 		if(dist > absRadius){
 			addNoise = true;
 			mult = 1.0 - (maxDist_ - dist) / (maxDist_ - absRadius);
 		}
-
-	}else if(globalNoiseType_ == 9){
-		// Closer to xOpt has more noise, radius specified
-		dist = (point - xOpt_).norm();
-		double absRadius = noiseRadius_ * maxDist_;
-		if(dist < absRadius){
-			addNoise = true;
-			mult = 1.0 - dist / absRadius;
-		}
-
-	}else if(globalNoiseType_ == 10){
-		// Noise centres, work out closest point
+	}else if(disturbanceType_ == 's' && disturbanceNum_ == 2){
+		// Disturbance centres, work out closest point
 		dist = DBL_MAX;
-		for(int i = 0; i < (int)noiseCentres_.size(); i++){
-			if((noiseCentres_[i] - point).norm() < dist){dist = (noiseCentres_[i] - point).norm();}
+		for(int i = 0; i < (int)disturbanceCentres_.size(); i++){
+			if((disturbanceCentres_[i] - point).norm() < dist){dist = (disturbanceCentres_[i] - point).norm();}
 		}
-		double absRadius = noiseRadius_ * maxDist_;
+		double absRadius = disturbanceRadius_ * maxDist_;
 		if(dist < absRadius){
 			addNoise = true;
 			mult = 1.0 - dist / absRadius;
 		}
 	
-	}else if(globalNoiseType_ == 11){
-		// Noise centres, work out closest point
-		dist = DBL_MAX;
-		for(int i = 0; i < (int)noiseCentres_.size(); i++){
-			if((noiseCentres_[i] - point).norm() < dist){dist = (noiseCentres_[i] - point).norm();}
-		}
-		double absRadius = noiseRadius_ * maxDist_;
-		if(dist > absRadius){
-			addNoise = true;
-			mult = 1.0 - (maxDist_ - dist) / (maxDist_ - absRadius);
-		}
+	}else{
+		printf("Asking for COCO low fidelity evaluation with undefined pair (%c,%d) of disturbance values! Stopping now...\n", disturbanceType_, disturbanceNum_);
+		exit(0);
 	}
 
-
-
-
-	// }else if(globalNoiseType_ == 1){
-	// 	// Height based
-	// 	double noiseCentre = fOpt_ + noiseHeight_ * (fMax_ - fOpt_);
-	// 	double absRadius = noiseRadius_ * (fMax_ - fOpt_);
-	// 	dist = abs(value - noiseCentre);
-	// 	if(dist < absRadius){
-	// 		addNoise = true;
-	// 		mult = 1.0 - dist / absRadius;
-	// 		trav = mult;
-	// 	}
-	
-	// }else if(globalNoiseType_ == 20){
-	// 	// Optimal point based
-	// 	dist = (point - xOpt_).norm();
-	// 	if(dist < noiseRadius_ * sqrt(d_)){
-	// 		addNoise = true;
-	// 		mult = 1.0 - dist / noiseRadius_ * sqrt(d_);
-	// 		trav = mult;
-	// 	}
-	
-	// }else if(globalNoiseType_ == 3){
-	// 	// Noise centre based
-	// 	dist = DBL_MAX;
-	// 	for(int i = 0; i < noiseCentres_.size(); i++){
-	// 		double temp = (noiseCentres_[i] - point).norm();
-	// 		if(temp < dist){dist = temp;}
-	// 	}
-	// 	if(dist < noiseRadius_ * sqrt(d_)){
-	// 		addNoise = true;
-	// 		mult = 1.0 - dist / noiseRadius_ * sqrt(d_);
-	// 		trav = mult;
-	// 	}
-	
-	// }
-
-	// Add noise
+	// Add disturbance if it applies
 	if(addNoise){
-		// Work out multiplier if dealing with multiplicative noise
-		double cauchyProb = 0.048 + noiseAmplitude_ * 0.15 / 0.99;
-		double multAmpGauss = log(1.0 + 2.0 * noiseAmplitude_) / 2.0;
-		double multAmpUniform = log(1.0 + 2.0 * noiseAmplitude_) / (log(0.99) + 0.99 * (0.49 + 1.0/d_) * log(2.0 * pow(10.0, 9) / (fMax_ - fOpt_)) );
-		// Work out grid position and seed for random functions to remove stochasticity
-		double seed = 0.0;
-		int power = 0;
-		for(int i = 0; i < d_; i++){
-			seed += floor((point(i) - lowerBound_[i]) / NOISE_TOL) * pow(10, power);
-			int cells = (int)ceil((upperBound_[i] - lowerBound_[i]) / NOISE_TOL);
-			power += (int)ceil(log10(cells));
-		}
-		if(seed_ != 0){seed *= seed_;}
-
-		// Remove fmin so that the min is 0
-		value -= fOpt_;
-		if(noiseType_ == 1){value += addSimpleNoise(trav, noiseAmplitude_ * (fMax_ - fOpt_)) * mult;}
-		if(noiseType_ == 2){value += addComplexNoise(trav, noiseAmplitude_ * (fMax_ - fOpt_)) * mult;}
-		if(noiseType_ == 3){value += addGaussWhiteNoise(noiseAmplitude_ * (fMax_ - fOpt_)/2.0, seed) * mult;}
-		if(noiseType_ == 4){value += addCauchyNoise(noiseAmplitude_ * (fMax_ - fOpt_) / 3.0, cauchyProb, seed) * mult;}
-		if(noiseType_ == 5){value *= pow(addGaussNoise(multAmpGauss, seed), mult);}
-		if(noiseType_ == 6){value *= pow(addUniformNoise(value, multAmpUniform, seed), mult);}
-		value += fOpt_;
+		value += mult * addBasicDisturbance(trav);
 	}
 	if(isnan(value)){printf("Encountered nan value! Stopping now...\n"); exit(0);}
-	point = point + displacement_;
 	return value;
 
-
-
-
-
-
-
-	// // Remove fmin so that the min is 0
-	// value -= fOpt_;
-	// // Find dist to focal point
-	// double dist = (point - focalPoints_[0]).norm();
-	// double num = 0.0;
-	// if(dist < localRadius_){num = 1.0 - dist/localRadius_;}
-	
-	// // Add noise
-	// if(noiseType_ == 1){value *= pow(addGaussNoise(value, beta_, seed), num);}
-	// if(noiseType_ == 2){value *= pow(addUniformNoise(value, alpha_, beta_, seed), num);}
-	// if(noiseType_ == 3){value += addCauchyNoise(value, alpha_, p_, seed) * num;}
-	// if(noiseType_ == 4){value += addGaussWhiteNoise(value, beta_, seed) * num;}
-	// return value + fOpt_;
-
-
-
-
-
-
-
-
-
-
-	// // First displace function
-	// VectorXd displacedPoint = point + disp_ * lowDisplacement_;
-	// // Sample point, then reflect if necessary
-	// double val = evaluate(displacedPoint);
-	
-	// // Work now on adding "noise"
-	// if(val > fOpt_ + startN_ * (fMax_ - fOpt_) && abs(val - fOpt_ + startN_ * (fMax_ - fOpt_)) > TOL &&
-	// 	val < fOpt_ + endN_ * (fMax_ - fOpt_) && abs(val - fOpt_ + endN_ * (fMax_ - fOpt_)) > TOL){
-	// 	// Need to add noise. Work out height relative to start and end point
-	// 	double height = (val - (fOpt_ + startN_ * (fMax_ - fOpt_))) / ((endN_ - startN_) * (fMax_ - fOpt_));
-	// 	val += ampN_ * ((endN_ - startN_) * (fMax_ - fOpt_)) * sin(2 * M_PI * height * freqN_);
-	// }
-
-	// // Work out multiplier based on reflection
-	// if(val < fOpt_ + startR_ * (fMax_ - fOpt_) && abs(val - fOpt_ + startR_ * (fMax_ - fOpt_)) > TOL){
-	// 	double diff = fOpt_ + startR_ * (fMax_ - fOpt_) - val;
-	// 	val = fOpt_ + startR_ * (fMax_ - fOpt_) + diff;
-	
-	// }else if(val > fOpt_ + endR_ * (fMax_ - fOpt_) && abs(val - fOpt_ + endR_ * (fMax_ - fOpt_)) > TOL){
-	// 	double diff = val - (fOpt_ + endR_ * (fMax_ - fOpt_));
-	// 	val = fOpt_ + endR_ * (fMax_ - fOpt_) - diff;
-	// }
-
-
-	// // Adding noise from local points
-	// for(int i = 0; i < focalPoints_.size(); i++){
-	// 	VectorXd focalPoint = focalPoints_[i];
-	// 	double dist = (point - focalPoint).norm();
-	// 	if(dist > localRadius_ * sqrt(d_)){continue;}
-		
-	// 	// Adding noise because of this point
-	// 	double amp = localAmp_ * (fMax_ - fOpt_);
-	// 	if(noiseType_ == 1){
-	// 		val += amp * (localRadius_ * sqrt(d_) - dist) * sin(localFreq_ * 2 * M_PI * dist);
-		
-	// 	}else if(noiseType_ == 2){
-	// 		val += amp * (localRadius_ * sqrt(d_) - dist) * sin(localFreq_ * 2 * M_PI * dist) * cos(localFreq_ * 2 * M_PI * dist * dist);
-	// 	}
-
-	// }
-
-	// ADDING SOMETHING RANDOM TO ME REMOVED!
-	// if(point(0) <= 0 && addFunction_){
-	// 	double misVal = 0.0;
-	// 	addFunction_ = false;
-	// 	int tempF = function_;
-	// 	function_ = 1;
-	// 	misVal = evaluateLow(point);
-	// 	function_ = tempF;
-	// 	addFunction_ = true;
-	// 	double mult = 1.0;
-	// 	if(point(0) >= -1){mult = -point(0);}
-	// 	val -= misVal * mult;
-	// }
-
-	
-
-	
-
-
-
-
-	// double rTemp = r_;
-	// if(r_ < 0){rTemp = 1 + r_;}
-	// double cutOff = (fOpt_ + rTemp * (fMax_ - fOpt_));
-
-	// if(r_ > 0 && val < cutOff){
-	// 	double diff = cutOff - val;
-	// 	val = cutOff + diff; 
-	// }
-
-	// if(r_ < 0 && val > cutOff){
-	// 	double diff = val - cutOff;
-	// 	val = cutOff - diff; 
-	// }
-
-	// return val;
-
-	// if(function_ == 1){return f1Low(point);}
-	// else if(function_ == 2){return f2Low(point);}
-	// else if(function_ == 3){return f3Low(point);}
-	// else if(function_ == 4){return f4Low(point);}
-	// else if(function_ == 5){return f5Low(point);}
-	// else if(function_ == 6){return f6Low(point);}
-	// else if(function_ == 7){return f7Low(point);}
-	// else if(function_ == 8){return f8Low(point);}
-	// else if(function_ == 9){return f9Low(point);}
-	// else if(function_ == 10){return f10Low(point);}
-	// else if(function_ == 11){return f11Low(point);}
-	// else if(function_ == 12){return f12Low(point);}
-	// else if(function_ == 13){return f13Low(point);}
-	// else if(function_ == 14){return f14Low(point);}
-	// else if(function_ == 15){return f15Low(point);}
-	// else if(function_ == 16){return f16Low(point);}
-	// else if(function_ == 17){return f17Low(point);}
-	// else if(function_ == 18){return f18Low(point);}
-	// else if(function_ == 19){return f19Low(point);}
-	// else if(function_ == 20){return f20Low(point);}
-	// else if(function_ == 21){return f21Low(point);}
-	// else if(function_ == 22){return f22Low(point);}
-	// else if(function_ == 23){return f23Low(point);}
-	// else if(function_ == 24){return f24Low(point);}
-	
-	// return 0.0;
 }
 
-// NOTE SLIGHT MODIFICATION OF ORIGINAL CODE, DO NOT NEED LOW FI TO HAVE THE SAME MIN!
-double COCOBiFunction::addGaussNoise(double amplitude, double seed){
-	// Looks like problem here as input to mt19937 constructor is an int
-	mt19937 gen((int)seed);
-	normal_distribution<double> standardNormal(0, 1);
-	return exp(amplitude * standardNormal(gen));
-}
-
-double COCOBiFunction::addUniformNoise(double value, double amplitude, double seed){
-	double alpha = amplitude * (0.49 + 1.0 / d_);
-	// Looks like problem here as input to mt19937 constructor is an int
-	mt19937 gen((int)seed);
-	uniform_real_distribution<double> uniformRandom(0, 1);
-	return pow(uniformRandom(gen), amplitude) * max(1.0, pow(pow(10,9) / (value + 1e-99), alpha * uniformRandom(gen)));
-}
-
-double COCOBiFunction::addCauchyNoise(double amplitude, double prob, double seed){
-	// Looks like problem here as input to mt19937 constructor is an int
-	mt19937 gen((int)seed);
-	normal_distribution<double> standardNormal(0, 1);
-	uniform_real_distribution<double> uniformRandom(0, 1);
-	double calc = standardNormal(gen) / (abs(standardNormal(gen)) + 1e-199);
-	double num = uniformRandom(gen);
-	if(calc > 8){calc = 8.0;}
-	if(calc < -8){calc = -8.0;}
-	if(num < prob){
-		return amplitude * calc;
-	}else{
-		return 0.0;
-	}
-}
-
-double COCOBiFunction::addGaussWhiteNoise(double amplitude, double seed){
-	// Looks like problem here as input to mt19937 constructor is an int
-	mt19937 gen((int)seed);
-	normal_distribution<double> standardNormal(0, 1);
-	return amplitude * standardNormal(gen);
-}
-
-double COCOBiFunction::addSimpleNoise(double value, double amplitude){
-	return amplitude * cos(noiseFreq_ * 2 * M_PI * value);
-	// return amplitude * cos(100 * 2 * M_PI * value);
-}
-
-double COCOBiFunction::addComplexNoise(double value, double amplitude){
-	return amplitude * cos(noiseFreq_ * 2 * M_PI * value) * sin(noiseFreq_ * 2 * M_PI * value * value);
+double COCOBiFunction::addBasicDisturbance(double value){
+	return basicDisturbanceAmplitude_ * (fMax_ - fOpt_) * cos(basicDisturbanceFrequency_ * 2 * M_PI * value) * sin(basicDisturbanceFrequency_ * 2 * M_PI * value * value);
 	// return amplitude * cos(100 * 2 * M_PI * value) * sin(100 * 2 * M_PI * value * value);
 }
 
-void COCOBiFunction::setDisplacement(double minRad, double maxRad){
-	normal_distribution<double> normalDis(0, 1);
-	uniform_real_distribution<double> uniformRandom(minRad, maxRad);
-    // Define direction
-    VectorXd direction = VectorXd(d_);
-    for(int i = 0; i < d_; i++){
-    	direction(i) = normalDis(randGen_);
-    }
-    double norm = direction.norm();
-	displacement_ =  uniformRandom(randGen_) * maxDist_ * direction / norm;
-	
-}
 
 
 

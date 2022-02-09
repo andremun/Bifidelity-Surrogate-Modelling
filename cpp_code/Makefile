@@ -1,7 +1,7 @@
 mac:
 	make -f Makefile.mac
-lin:
-	make -f Makefile.lin
+cluster:
+	make -f Makefile.cluster
 
 clean:
 	-rm *.o $(objects)  main
