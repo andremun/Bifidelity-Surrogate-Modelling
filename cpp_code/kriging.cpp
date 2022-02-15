@@ -253,7 +253,8 @@ void CoKriging::generateSample(){
 		sampleGenerator_->prePrint_ = "Generate low fi data sample: ";
 	}
 
-	lowFiKriging_->generateSample();
+	lowFiKriging_->sampledPoints_ = sampleGenerator_->randomLHS(highFiSampleBudget_);
+	lowFiKriging_->sampledPointsValues_ = biFunction_->evaluateManyLow(lowFiKriging_->sampledPoints_);
 	// Now get the high fidelity sample.
 	if(printInfo_){
 		printf("\nGenerate high fi data sample: ");

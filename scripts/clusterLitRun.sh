@@ -2,7 +2,7 @@
 #SBATCH --job-name=literatureTestSuiteAnalysis
 #SBATCH --time=24:00:00
 #SBATCH --partition=snowy
-#SBATCH --mem=20G
+#SBATCH --mem=5G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1

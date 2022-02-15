@@ -164,7 +164,7 @@ vector<double> calculateLocalCorrelations(BiFidelityFunction* function, int samp
 	lccSD = sqrt(lccSD / (sampleSize - 1));
 	localCorrs.push_back(lccSD);
 	// Add LCC^r_coeff
-	double lccCoeff = pow(lccSD, 2);
+	double lccCoeff = lccSD;
 	if(lccMean > TOL){lccCoeff = lccCoeff / lccMean;}
 	localCorrs.push_back(lccCoeff);
 
