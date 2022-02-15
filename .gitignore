@@ -9,7 +9,8 @@ data/*
 # Ignore all .DS_Store files from Mac
 *.DS_Store
 
-
+# Also ignore R_history
+R_code/.Rhistory
 
 
 
