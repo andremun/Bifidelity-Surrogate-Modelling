@@ -221,7 +221,10 @@ COCOBiFunction* processCOCOFunctionName(string name){
 		int centres = stoi(line.substr(7));
 		SampleGenerator* generator = new SampleGenerator(function, seed, false);
 		function->disturbanceCentres_ = generator->randomLHS(centres);
-		delete generator;			
+		delete generator;		
+		// Get radius
+		getline(ss, line, '-');
+		function->disturbanceRadius_ = stof(line.substr(6));	
 	}else{
 		printf("Disturbance type %c not yet implemented, for now only have height (h) and source (s) based!\n", function->disturbanceType_);
 		return NULL;
@@ -229,8 +232,8 @@ COCOBiFunction* processCOCOFunctionName(string name){
 	// Get basic disturbance parameters, frequency and amplitude
 	getline(ss, line, '-');
 	function->basicDisturbanceFrequency_ = stoi(line.substr(4));
+	getline(ss, line, '-');
 	function->basicDisturbanceAmplitude_ = stof(line.substr(3));
-
 	// These disturbances need to know the range of the function.
 	// Minimum is chosen, need to find maximum. Approximation of range is still valid.
 	ARSsolver* auxSolver = new ARSsolver(function, 10, 5000, false, seed, false);
@@ -288,7 +291,6 @@ double executeExperiment(string filename, string functionName, string technique,
 	}else{
 		printf("Unkown technique %s! Ending here...\n", technique.c_str()); return -DBL_MAX;
 	}
-
 	// Train model and calculate accuracy
 	surrogateModel->createSurrogateModel();
 	double performance;
@@ -301,22 +303,8 @@ double executeExperiment(string filename, string functionName, string technique,
 		vector<double> modelVals = surrogateModel->multipleSurfaceValues(samples);
 		performance = relativeRootMeanSquaredError(trueVals, modelVals);
 	}
-
 	// Get features
-	vector<double> analysis = calculateFunctionFeatures(function, 1000, seed, r, pVals);
-	// Need to get min and max as well (i.e. solve with aux)
-	// Maximise
-	// delete auxSolver;
-	// auxSolver = new ARSsolver(function, 10, 5000, false, seed, false);
-	// VectorXd xMax = auxSolver->optimise();
-	// double fMax = function->evaluate(xMax);
-	// // Minimise
-	// delete auxSolver;
-	// auxSolver = new ARSsolver(function, 10, 5000, true, seed, false);
-	// VectorXd xMin = auxSolver->optimise();
-	// double fMin = function->evaluate(xMin);
-
-	
+	vector<double> analysis = calculateFunctionFeatures(function, 1000, seed, r, pVals);	
 
 	// Store info
 	ofstream outputFile;

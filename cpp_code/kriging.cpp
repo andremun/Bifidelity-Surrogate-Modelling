@@ -25,6 +25,8 @@ Kriging::Kriging(Function* ebbFunction, ARSsolver* auxSolver, int sampleBudget, 
 
 	theta_.reserve(ebbFunction_->d_);
 	pVector_.reserve(ebbFunction_->d_);
+
+	trainedModel_ = false;
 }
 
 Kriging::~Kriging(){}
@@ -253,7 +255,7 @@ void CoKriging::generateSample(){
 		sampleGenerator_->prePrint_ = "Generate low fi data sample: ";
 	}
 
-	lowFiKriging_->sampledPoints_ = sampleGenerator_->randomLHS(highFiSampleBudget_);
+	lowFiKriging_->sampledPoints_ = sampleGenerator_->randomLHS(lowFiSampleBudget_);
 	lowFiKriging_->sampledPointsValues_ = biFunction_->evaluateManyLow(lowFiKriging_->sampledPoints_);
 	// Now get the high fidelity sample.
 	if(printInfo_){
