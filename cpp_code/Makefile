@@ -1,5 +1,5 @@
-mac:
-	make -f Makefile.mac
+local:
+	make -f Makefile.local
 cluster:
 	make -f Makefile.cluster
 

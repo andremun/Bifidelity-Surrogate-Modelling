@@ -1,0 +1,3 @@
+This folder contains all the plots showing the constructed decision trees 
+used to predict when CoKriging can be used, as well as the plots showing 
+variable importance for the constructed decision trees.

@@ -1,0 +1,2 @@
+This folder contains all the plots which show the distribution of the instances
+of an experimental run based on their features, and a legend based on the type of instance.

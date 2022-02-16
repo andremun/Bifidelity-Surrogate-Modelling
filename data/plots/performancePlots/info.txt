@@ -1,0 +1,3 @@
+This folder contains all the plots which show the distribution of the instances of
+an experimental run ased on their features, with the legend showing which model was more accurate,
+Kriging, CoKriging or tied.

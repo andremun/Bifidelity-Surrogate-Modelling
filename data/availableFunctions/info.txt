@@ -1,0 +1,4 @@
+Folder which contains the names of the functions which will be recognised as
+inputs when specifying an experiment run. The code interprets the name and
+initialises the BiFidelity instance. Each of the function pairs defined in this
+folder are implemented in functions.cpp.

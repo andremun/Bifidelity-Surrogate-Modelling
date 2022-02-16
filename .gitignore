@@ -1,10 +1,19 @@
-# Ignore all files in data folder and subfolders as should be results of experiments
-# Only keep information file which explains what the folder will contain
-data/*
-!*info.txt
+# Ignore run scripts, cluster results, and plots, as these should be produced by the code
+data/runScripts/*
+!data/runScripts/info.txt
 
-# Also want to keep folder which lists available functions
-!data/availableFunctions/*
+data/clusterResults/*
+!data/clusterResults/info.txt
+
+data/plots/featurePlots/*
+!data/plots/featurePlots/info.txt
+
+data/plots/performancePlots/*
+!data/plots/performancePlots/info.txt
+
+data/plots/predictionPlots/*
+!data/plots/predictionPlots/info.txt
+
 
 # Ignore all .DS_Store files from Mac
 *.DS_Store

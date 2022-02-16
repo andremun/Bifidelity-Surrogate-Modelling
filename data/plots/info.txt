@@ -1,0 +1,12 @@
+Folder which contains all of the plots of the analysis of the exerimental run,
+subdivided into three folders:
+
+	- featurePlots contains all the plots which show the distribution of the 
+		instances based on their features, and a legend based on the type of instance.
+
+	- performancePlots contains all the plots which show the distribution of the instances
+		based on their features, with the legend showing which model was more accurate.
+
+	- predictionPlots contains all the plots showing the constructed decision trees, 
+		as well as the plots showing variable importance for the constructed decision
+		trees.
