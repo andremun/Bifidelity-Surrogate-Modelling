@@ -19,7 +19,7 @@ data/plots/predictionPlots/*
 
 # Ignore Mac specific files
 *.DS_Store
-main.dSYM/Contents
+cpp_code/main.dSYM/*
 
 # Ignore hidden files
 .*
