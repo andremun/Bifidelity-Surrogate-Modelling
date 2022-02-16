@@ -14,12 +14,16 @@ data/plots/performancePlots/*
 data/plots/predictionPlots/*
 !data/plots/predictionPlots/info.txt
 
+# Ignore compiled executable
+cpp_code/main
 
-# Ignore all .DS_Store files from Mac
+# Ignore Mac specific files
 *.DS_Store
+main.dSYM/Contents
 
-# Also ignore R_history
-R_code/.Rhistory
+# Ignore hidden files
+.*
+!.gitignore
 
 
 

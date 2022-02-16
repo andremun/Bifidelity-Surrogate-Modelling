@@ -35,8 +35,11 @@ Rscript R_code/createLiteratureExperimentalScript.R
 
 # *** Run literature suite experimental run. ***
 # The next line runs everything locally:
-bash scripts/localLitRun.sh
-# To run on cluster (recommended), modify following script for cluster run:
+# bash scripts/localLitRun.sh
+# To run on cluster (recommended), modify the script below for cluster run.
+# Note the same folder structure of the whole project is required, including
+# the folders scripts/, data/clusterResults/, and data/runScripts containing 
+# the file "litSuiteTesting.txt"
 # scripts/clusterLitRun.sh
 
 # Run analysis of literature suite experimental results.
@@ -47,8 +50,11 @@ Rscript R_code/createNewInstancesFeaturesScript.R
 
 # *** Analyse features of the new instances. ***
 # The next line runs everything locally:
-bash scripts/localNewInstancesFeaturesRun.sh
-# To run on cluster (recommended), modify following script for cluster run:
+# bash scripts/localNewInstancesFeaturesRun.sh
+# To run on cluster (recommended), modify the script below for cluster run.
+# Note the same folder structure of the whole project is required, including
+# the folders scripts/, data/clusterResults/, and data/runScripts containing 
+# the file "newInstancesFeatures.txt"
 # scripts/clusterNewInstancesFeaturesRun.sh
 
 # Run analysis of new instances, choose subset and create script
@@ -57,8 +63,11 @@ Rscript R_code/createNewInstancesExperimentalScript.R
 
 # *** Run new suite experimental run. ***
 # The next line runs everything locally:
-bash scripts/localNewInstancesSubsetRun.sh
-# To run on cluster (recommended), modify following script for cluster run:
+# bash scripts/localNewInstancesSubsetRun.sh
+# To run on cluster (recommended), modify the script below for cluster run.
+# Note the same folder structure of the whole project is required, including
+# the folders scripts/, data/clusterResults/, and data/runScripts containing 
+# the file "newInstancesTesting.txt"
 # scripts/clusterNewInstancesSubsetRun.sh
 
 # Run analysis of new suite experimental results, known as 
