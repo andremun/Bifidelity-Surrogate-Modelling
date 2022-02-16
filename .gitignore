@@ -21,10 +21,9 @@ data/plots/predictionPlots/*
 *.DS_Store
 cpp_code/main.dSYM/*
 
-# Ignore hidden files
-.*
-!.gitignore
-
+# Ignore hidden files in R folder
+R_code/.RData
+R_code/.Rhistory
 
 
 # Prerequisites
