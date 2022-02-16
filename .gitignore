@@ -15,7 +15,7 @@ data/plots/predictionPlots/*
 !data/plots/predictionPlots/info.txt
 
 # Ignore compiled executable
-cpp_code/main
+/cpp_code/main
 
 # Ignore Mac specific files
 *.DS_Store
