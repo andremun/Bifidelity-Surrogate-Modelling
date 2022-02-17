@@ -72,7 +72,7 @@ Rscript R_code/createNewInstancesExperimentalScript.R
 
 # Run analysis of new suite experimental results, known as 
 # augmented test suite.
-Rscript R_code/analyseAugmentedExperiments.R
+# Rscript R_code/analyseAugmentedExperiments.R
 
 
 
