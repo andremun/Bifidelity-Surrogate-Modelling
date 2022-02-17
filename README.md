@@ -2,7 +2,7 @@
 
 This repo contains the code used to run and analyse all experiments of "Bi-fidelity Surrogate Modelling: Showcasing the need for new test instances" (2022) by Andres-Thio N, Munoz MA, and Smith-Miles K. 
 
-The code implements Kriging[^1,^2] and Co-Kriging[^3,4] as surrogate models. That is, the implementation
+The code implements Kriging[^1] and Co-Kriging[^3][^4] as surrogate models. That is, the implementation
 generates a sample of a bi-fidelity function and trains the surrogate model, without the added functionality
 of choosing further samples. Multiple literature test instances are implemented here
 
