@@ -3,8 +3,7 @@
 This repo contains the code used to run and analyse all experiments of "Bi-fidelity Surrogate Modelling: Showcasing the need for new test instances" (2022) by Andres-Thio N, Munoz MA, and Smith-Miles K. 
 
 The code implements Kriging[^1][^2] and Co-Kriging[^3][^4] as surrogate models. That is, the implementation
-generates a sample of a bi-fidelity function and trains the surrogate model, without the added functionality
-of choosing further samples. Multiple literature test instances are implemented here[^6][^7][^8][^9][^10][^11][^12][^13][^14][^15][^16], as well as a novel instance creation procedure which adds a disturbance to a high-fidelity function to create a low-fidelity function. In this implementation functions from the COCO test suite[^17] are used as the high fidelity functions.
+generates a sample of a bi-fidelity function (that is, a high fidelity sample and a low fidelity sample of specified size), and trains the chosen surrogate model, without the added functionality of choosing further samples. Multiple literature test instances are implemented here[^6][^7][^8][^9][^10][^11][^12][^13][^14][^15][^16], as well as a novel instance creation procedure which adds a disturbance to a high-fidelity function to create a low-fidelity function. In this implementation functions from the COCO test suite[^17] are used as the high fidelity functions. The performance of both Kriging and Co-Kriging is assessed by calculating the Relative Root Mean Squared Error (RRMSE) between the trained model and the high fidelity source.
 
 All instructions on how to re run all experiments are given in the 'runAllExperiments.bash' file. As given, all experiments and analysis can be run sequentially by simply running the script, although this is not recommended. Instead it is recommmended to use a computer cluster to run the main experiments as indicated in the bash script.
 
