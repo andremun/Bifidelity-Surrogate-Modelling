@@ -22,10 +22,6 @@ data/plots/predictionPlots/*
 cpp_code/main.dSYM/*
 
 # Ignore hidden files in R folder
-
-#TRY THIS
-
-*.RData
 R_code/.RData
 R_code/.Rhistory
 
