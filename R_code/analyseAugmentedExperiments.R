@@ -29,21 +29,21 @@ newInstancesResults$legend = "Disturbance-based"
 newInstancesResults$col = "sienna1"
 
 # Combine the results
-combinedResults <- rbind(literatureTestSuiteResults, newInstancesResults)
+combinedResults <- rbind(newInstancesResults, literatureTestSuiteResults)
 # Plot feature graphs
 cat("Plotting feature graphs ")
 plotFeatures(combinedResults, "augmentedSuiteTestingFeatures", mult = graphScale)
 cat("- done.\n")
 # Add columns of information when plotting model performance
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Co-Kriging", "pch"] <- 17
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Co-Kriging", "col"] <- "green4"
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Co-Kriging", "legend"] <- "Co-Kriging"
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Tied", "pch"] <- 16
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Tied", "col"] <- "darkgoldenrod1"
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Tied", "legend"] <- "Tied"
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Kriging", "pch"] <- 15
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Kriging", "col"] <- "red"
-literatureTestSuiteResults[literatureTestSuiteResults$superiorModel == "Kriging", "legend"] <- "Kriging"
+combinedResults[combinedResults$superiorModel == "Co-Kriging", "pch"] <- 17
+combinedResults[combinedResults$superiorModel == "Co-Kriging", "col"] <- "green4"
+combinedResults[combinedResults$superiorModel == "Co-Kriging", "legend"] <- "Co-Kriging"
+combinedResults[combinedResults$superiorModel == "Tied", "pch"] <- 16
+combinedResults[combinedResults$superiorModel == "Tied", "col"] <- "darkgoldenrod1"
+combinedResults[combinedResults$superiorModel == "Tied", "legend"] <- "Tied"
+combinedResults[combinedResults$superiorModel == "Kriging", "pch"] <- 15
+combinedResults[combinedResults$superiorModel == "Kriging", "col"] <- "red"
+combinedResults[combinedResults$superiorModel == "Kriging", "legend"] <- "Kriging"
 # Plot performance graphs
 cat("Plotting performance graphs ")
 plotPerformance(combinedResults, "augmentedSuiteTestingFeatures", mult = graphScale)
@@ -51,5 +51,5 @@ cat("- done.\n")
 # Perform analysis of decision tree accuracies
 cat("Perform decision tree analysis:\n")
 runDecisionTreeAnalysis(literatureTestSuiteResults, "literatureTestSuite")
-runDecisionTreeAnalysis(combinedResults, "literatureTestSuite")
+runDecisionTreeAnalysis(combinedResults, "augmentedTestSuite")
 

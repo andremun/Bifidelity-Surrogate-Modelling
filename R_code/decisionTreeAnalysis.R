@@ -34,7 +34,7 @@ performDecisionTreePrediction <- function(data, features, iterations, runName, m
     minBucket <- round(nrow(trainData) * minPercentage)
     
     if(length(features) > 1 | (features[[1]] != "alwaysCoKrig" & features[[1]] != "majorityRule")){
-      model <- rpart(prediction ~., data = trainData[, c(features, "prediction")], control = rpart.control(minbucket = minBucket, cp = cp), parms = list(split = "gini"))
+      model <- rpart(prediction ~., data = trainData[, c(features, "prediction")], control = rpart.control(minbucket = minBucket, cp = cp))
       t_pred = predict(model, testData, type = "class")
       performance <- performance + mean(testData$prediction == t_pred)
       newImportances <- as.data.frame(model$variable.importance)
@@ -57,7 +57,7 @@ performDecisionTreePrediction <- function(data, features, iterations, runName, m
   cat(paste0("\rFor ", runName, ", average accuracy of ", iterations, " random runs is ", performance/iterations *100, "%"), "\n")
   
   if(length(features) > 1 | (features[[1]] != "alwaysCoKrig" & features[[1]] != "majorityRule")){
-    model <- rpart(prediction ~., data = predictionData[, c(features, "prediction")], control = rpart.control(minbucket = minBucket, cp = cp), parms = list(split = "gini"))
+    model <- rpart(prediction ~., data = predictionData[, c(features, "prediction")], control = rpart.control(minbucket = minBucket, cp = cp))
     if(sum(model$frame$var == "<leaf>") > 1){
       pdf(paste0("data/plots/predictionPlots/", runName, "-minPercentage", minPercentage, "-default-cp", cp, ".pdf"), width = 5, height = 3)
       fancyRpartPlot(model, sub="", digits=3)
