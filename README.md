@@ -34,5 +34,5 @@ The following are required for this code to be compiled and executed:
 [^14]: Dong H, Song B, Wang P, Huang S (2015) "Multi-fidelity information fusion based on prediction of kriging". Structural and Multidisciplinary Optimization 51(6):1267–1280.
 [^15]: Xiong S, Qian PZ, Wu CJ (2013) "Sequential design and analysis of high-accuracy and low-accuracy computer codes". Technometrics 55(1):37–46.
 [^16]: Park C, Haftka RT, Kim NH (2018) "Low-fidelity scale factor improves bayesian multi-fidelity prediction by reducing bumpiness of discrepancy function". Structural and Multidisciplinary Optimization 58(2):399–414.
-[^17]: Hansen N, Auger A, Ros R, Mersmann O, Tuˇsar T, Brockhoff D (2020) "COCO: A platform for comparing continuous optimizers in a black-box setting". Optimization Methods and Software URL http://dx.doi.org/https://doi.org/10.1080/10556788.2020.1808977
-[^18]: Andres-Thio, Nicolau; Munoz Acosta, Mario Andres; Smith-Miles, Kate (2022): Data folder. figshare. Dataset. https://doi.org/10.6084/m9.figshare.19196594.v1
+[^17]: Hansen N, Auger A, Ros R, Mersmann O, Tuˇsar T, Brockhoff D (2020) "COCO: A platform for comparing continuous optimizers in a black-box setting". Optimization Methods and Software URL http://dx.doi.org/10.1080/10556788.2020.1808977
+[^18]: Andres-Thio, Nicolau; Munoz Acosta, Mario Andres; Smith-Miles, Kate (2022): Data folder. figshare. Dataset. https://dx.doi.org/10.6084/m9.figshare.19196594.v1
